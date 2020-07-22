@@ -17,9 +17,37 @@
 
 import os
 import pickle
+import sys
 
 
 BASE_PATH = os.path.split(os.path.abspath(os.getcwd()))[0]
+
+
+def max_value(data, feature_name):
+    _max = int(-sys.maxint - 1)
+    for key, value in data.items():
+        feature_value = value[feature_name]
+        if feature_value == "NaN":
+            continue
+
+        feature_value = int(feature_value)
+        if feature_value > _max:
+            _max = feature_value
+    return _max
+
+
+def min_value(data, feature_name):
+    _min = int(sys.maxint)
+
+    for key, value in data.items():
+        feature_value = value[feature_name]
+        if feature_value == "NaN":
+            continue
+
+        feature_value = int(feature_value)
+        if feature_value < _min:
+            _min = feature_value
+    return _min
 
 
 def count_missing_payments(data, poi=False):
@@ -61,14 +89,14 @@ def get_person(data, person):
     return data.get(person.upper())
 
 
-def load_enron_date():
+def load_enron_data():
     return pickle.load(
         open(os.path.join(BASE_PATH, "final_project/final_project_dataset.pkl"), "rb")
     )
 
 
 if __name__ == "__main__":
-    enron_data = load_enron_date()
+    enron_data = load_enron_data()
     print(enron_data)
     number_of_data_points = len(enron_data.keys())
     print("no. of data points: {}".format(number_of_data_points))
@@ -128,5 +156,11 @@ if __name__ == "__main__":
     print(
         "no. of POI with NaN for total payments as a percentage: {}".format(
             (float(poi_with_missing_total_payments) / float(number_of_data_points)) * 100
+        )
+    )
+    feature = "salary"
+    print(
+        "min and max of exercised stock options ignoring NaN values: {}, {}".format(
+            min_value(data=enron_data, feature_name=feature), max_value(data=enron_data, feature_name                                                                                                                                                                                                                                                                                                               =feature)
         )
     )
