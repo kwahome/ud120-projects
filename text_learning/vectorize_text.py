@@ -2,8 +2,7 @@
 
 import os
 import pickle
-import re
-import sys
+from sklearn.feature_extraction.text import TfidfVectorizer
 from tools.parse_out_email_text import parse_out_text
 
 """
@@ -22,6 +21,9 @@ from tools.parse_out_email_text import parse_out_text
 
 BASE_PATH = os.path.split(os.path.abspath(os.getcwd()))[0]
 
+# use str.replace() to remove any instances of the words
+WORDS_TO_REMOVE = ["sara", "shackleton", "chris", "germani"]
+
 
 def process_text():
     from_sara = open(os.path.join(BASE_PATH, "text_learning/from_sara.txt"), "r")
@@ -30,41 +32,29 @@ def process_text():
     from_data = []
     word_data = []
 
-    # temp_counter is a way to speed up the development--there are
-    # thousands of emails from Sara and Chris, so running over all of them
-    # can take a long time
-    # temp_counter helps you only look at the first 200 emails in the list so you
-    # can iterate your modifications quicker
-    temp_counter = 0
-
     for name, from_person in [("sara", from_sara), ("chris", from_chris)]:
         for path in from_person:
-            # only look at first 200 emails when developing
-            # once everything is working, remove this line to run over full dataset
-            temp_counter += 1
-            if temp_counter < 200:
-                path = os.path.join(BASE_PATH, "resources/datasets/enron_mail_20150507/", path[:-1])
-                print(path)
-                email = open(path, "r")
+            path = os.path.join(BASE_PATH, "resources/datasets/enron_mail_20150507/", path[:-1])
+            # print(path)
+            email = open(path, "r")
 
-                # use parseOutText to extract the text from the opened email
-                processed_text = parse_out_text(email)
-                print("processed text: {}".format(processed_text))
+            # use parseOutText to extract the text from the opened email
+            processed_text = parse_out_text(email)
 
-                # use str.replace() to remove any instances of the words
-                to_remove = ["sara", "shackleton", "chris", "germani"]
-                processed_text = " ".join(["" if word in to_remove else word for word in list(processed_text)])
+            for word in WORDS_TO_REMOVE:
+                processed_text = processed_text.replace(word, "")
 
-                # append the text to word_data
+            # append the text to word_data
+            if processed_text != "":
                 word_data.append(processed_text)
 
-                # append a 0 to from_data if email is from Sara, and 1 if email is from Chris
-                if from_person == "sara":
-                    from_data.append(0)
-                elif from_person == "chris":
-                    from_data.append(1)
+            # append a 0 to from_data if email is from Sara, and 1 if email is from Chris
+            if from_person == "sara":
+                from_data.append(0)
+            else:
+                from_data.append(1)
 
-                email.close()
+            email.close()
 
     print("word data: {}".format(word_data[152]))
     print("emails processed")
@@ -74,7 +64,11 @@ def process_text():
     pickle.dump(word_data, open(os.path.join(BASE_PATH, "text_learning/your_word_data.pkl"), "w"))
     pickle.dump(from_data, open(os.path.join(BASE_PATH,  "text_learning/your_email_authors.pkl"), "w"))
 
-    ### in Part 4, do TfIdf vectorization here
+    vectorizer = TfidfVectorizer(stop_words="english")
+    vectorizer.fit_transform(word_data)
+    feature_words = vectorizer.get_feature_names()
+    print("number of words:", len(feature_words))
+    print("word number 34597:", feature_words[34597])
 
 
 if __name__ == "__main__":
