@@ -1,9 +1,13 @@
 #!/usr/bin/python
 
 from nltk.stem.snowball import SnowballStemmer
+import os
 import string
 
-def parseOutText(f):
+BASE_PATH = os.path.split(os.path.abspath(os.getcwd()))[0]
+
+
+def parse_out_text(f):
     """ given an opened email file f, parse out all text below the
         metadata block at the top
         (in Part 2, you will also add stemming capabilities)
@@ -15,40 +19,32 @@ def parseOutText(f):
         text = parseOutText(f)
         
         """
-
-
-    f.seek(0)  ### go back to beginning of file (annoying)
+    stemmer = SnowballStemmer("english", ignore_stopwords=True)
+    f.seek(0)  # go back to beginning of file (annoying)
     all_text = f.read()
 
-    ### split off metadata
+    # split off metadata
     content = all_text.split("X-FileName:")
     words = ""
     if len(content) > 1:
-        ### remove punctuation
+        # remove punctuation
         text_string = content[1].translate(string.maketrans("", ""), string.punctuation)
+        # print(text_string)
+        # project part 2: comment out the line below
+        words = " ".join([stemmer.stem(word) for word in text_string.split(" ")])
 
-        ### project part 2: comment out the line below
-        words = text_string
-
-        ### split the text string into individual words, stem each word,
-        ### and append the stemmed word to words (make sure there's a single
-        ### space between each stemmed word)
-        
-
-
-
+        # split the text string into individual words, stem each word,
+        # and append the stemmed word to words (make sure there's a single
+        # space between each stemmed word)
 
     return words
 
-    
 
 def main():
-    ff = open("../text_learning/test_email.txt", "r")
-    text = parseOutText(ff)
-    print text
+    ff = open(os.path.join(BASE_PATH, "text_learning/test_email.txt"), "r")
+    text = parse_out_text(ff)
+    print(text)
 
 
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
-
