@@ -9,7 +9,6 @@
 
     After that, it's not our code anymore--it's yours!
 """
-
 import os
 import pickle
 from sklearn.metrics import accuracy_score
@@ -21,8 +20,7 @@ from tools.feature_format import feature_format, target_feature_split
 BASE_PATH = os.path.split(os.path.abspath(os.getcwd()))[0]
 
 
-def predict():
-
+def poi_identifier():
     data_dict = pickle.load(open(os.path.join(BASE_PATH, "final_project/final_project_dataset.pkl"), "r"))
 
     # first element is our labels, any added elements are predictor
@@ -46,4 +44,4 @@ def predict():
 
 
 if __name__ == "__main__":
-    predict()
+    poi_identifier()
